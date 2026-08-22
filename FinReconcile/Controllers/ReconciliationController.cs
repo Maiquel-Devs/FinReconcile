@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FinReconcile.Data;
+using FinReconcile.Models;
 using FinReconcile.Services;
 
 namespace FinReconcile.Controllers;
@@ -43,5 +44,43 @@ public class ReconciliationController : Controller
 
         TempData["Success"] = "Extrato importado e processado com sucesso!";
         return RedirectToAction(nameof(Upload));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Divergences()
+    {
+        var unmatchedTx = await _context.InternalTransactions
+            .Where(t => t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.Divergent)
+            .OrderByDescending(t => t.TransactionDate)
+            .ToListAsync();
+
+        var unmatchedStatements = await _context.BankStatements
+            .Where(b => b.Status == TransactionStatus.Pending || b.Status == TransactionStatus.Divergent)
+            .OrderByDescending(b => b.StatementDate)
+            .ToListAsync();
+
+        var viewModel = new DivergenceViewModel
+        {
+            UnmatchedInternalTransactions = unmatchedTx,
+            UnmatchedBankStatements = unmatchedStatements
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ManualReconcile(int internalTransactionId, int bankStatementId, string note)
+    {
+        try
+        {
+            await _reconciliationService.ManualMatchAsync(internalTransactionId, bankStatementId, note);
+            TempData["Success"] = "Conciliação manual realizada com sucesso!";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Erro ao conciliar manualmente: {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Divergences));
     }
 }

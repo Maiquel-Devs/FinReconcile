@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using FinReconcile.Data;
 using FinReconcile.DTOs;
 using FinReconcile.Models;
-using MatchType = FinReconcile.Models.MatchType; 
+using MatchType = FinReconcile.Models.MatchType;
 
 namespace FinReconcile.Services;
 
@@ -122,6 +122,34 @@ public class ReconciliationService : IReconciliationService
         }
 
         await _context.ReconciliationMatches.AddRangeAsync(matches);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ManualMatchAsync(int internalTransactionId, int bankStatementId, string note)
+    {
+        var internalTx = await _context.InternalTransactions.FindAsync(internalTransactionId);
+        var statement = await _context.BankStatements.FindAsync(bankStatementId);
+
+        if (internalTx == null || statement == null)
+        {
+            throw new InvalidOperationException("Transação ou extrato não encontrado.");
+        }
+
+        internalTx.Status = TransactionStatus.Reconciled;
+        statement.Status = TransactionStatus.Reconciled;
+
+        var diff = Math.Abs(internalTx.Amount - statement.NetAmount);
+
+        var match = new ReconciliationMatch
+        {
+            InternalTransactionId = internalTx.Id,
+            BankStatementId = statement.Id,
+            MatchType = MatchType.Manual,
+            DifferenceAmount = diff,
+            Note = string.IsNullOrWhiteSpace(note) ? "Conciliação manual forçada pelo operador." : note
+        };
+
+        await _context.ReconciliationMatches.AddAsync(match);
         await _context.SaveChangesAsync();
     }
 }
