@@ -1,117 +1,108 @@
 @model IEnumerable<FinReconcile.Models.ReconciliationMatch>
 
 @{
-    ViewData["Title"] = "Conciliação de Extratos";
+    ViewData["Title"] = "Importação e Matches";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Importação e Conciliação</h1>
-            <p class="text-muted mb-0">Envio de extratos bancários (CSV) e execução do motor de regras contábeis</p>
-        </div>
-        <a asp-controller="Transactions" asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Ver Lançamentos
-        </a>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h1 class="h4 fw-bold mb-1">Processamento de Extratos</h1>
+        <p class="text-muted small mb-0">Importação de arquivos CSV bancários e execução automática de regras de liquidação</p>
     </div>
+    <a asp-action="Divergences" class="btn btn-outline-secondary px-3">
+        <i class="bi bi-shield-exclamation me-1"></i> Fila de Divergências
+    </a>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <!-- Card de Upload -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h6 class="m-0 fw-bold text-primary">Importar Arquivo de Extrato (.csv)</h6>
-        </div>
-        <div class="card-body p-4">
-            <form asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-3 align-items-center">
-                <div class="col-md-8">
-                    <input type="file" name="file" class="form-control form-control-lg" accept=".csv" required />
-                    <div class="form-text">
-                        Formato esperado: colunas <code>reference,amount,fee,date</code> separadas por vírgula.
-                    </div>
-                </div>
-                <div class="col-md-4 d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">
-                        <i class="bi bi-cpu me-1"></i> Processar e Conciliar
-                    </button>
-                </div>
-            </form>
-        </div>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div>@TempData["Success"]</div>
     </div>
+}
 
-    <!-- Tabela de Histórico de Matches -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h6 class="m-0 fw-bold text-success">Transações Conciliadas (Matches Efetuados)</h6>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div>@TempData["Error"]</div>
+    </div>
+}
+
+<!-- Upload Card -->
+<div class="card-panel mb-4 p-4">
+    <form asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-3 align-items-center">
+        <div class="col-md-9">
+            <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Arquivo de Extrato (.CSV)</label>
+            <input type="file" name="file" class="form-control" accept=".csv" required />
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+        <div class="col-md-3 d-grid">
+            <label class="form-label d-none d-md-block">&nbsp;</label>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cpu me-1"></i> Processar Arquivo
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Matches Table -->
+<div class="card-panel">
+    <div class="card-panel-header">
+        <span class="fw-semibold">Auditoria de Matches Confirmados</span>
+        <span class="text-muted small mono-num">@Model.Count() conciliações</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table-fintech">
+            <thead>
+                <tr>
+                    <th>Data Conciliação</th>
+                    <th>Ref. Interna</th>
+                    <th>Ref. Extrato</th>
+                    <th class="text-end">Esperado</th>
+                    <th class="text-end">Líquido Banco</th>
+                    <th class="text-center">Tipo de Match</th>
+                    <th>Nota / Justificativa</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            Nenhum match realizado até o momento. Importe um extrato CSV acima.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var match in Model)
+                    {
                         <tr>
-                            <th class="ps-4">Data Match</th>
-                            <th>Ref. Interna</th>
-                            <th>Ref. Extrato</th>
-                            <th>Valor Esperado</th>
-                            <th>Líquido Extrato</th>
-                            <th>Tipo Match</th>
-                            <th>Observação</th>
+                            <td class="text-muted mono-num">@match.ReconciledAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="fw-semibold">@match.InternalTransaction.ExternalReference</td>
+                            <td class="text-muted">@match.BankStatement.OriginalReference</td>
+                            <td class="text-end mono-num">@match.InternalTransaction.Amount.ToString("C")</td>
+                            <td class="text-end fw-bold mono-num text-success">@match.BankStatement.NetAmount.ToString("C")</td>
+                            <td class="text-center">
+                                @if (match.MatchType == FinReconcile.Models.MatchType.Exact)
+                                {
+                                    <span class="status-pill pill-reconciled">Exato</span>
+                                }
+                                else if (match.MatchType == FinReconcile.Models.MatchType.Tolerance)
+                                {
+                                    <span class="status-pill pill-tolerance">Tolerância (@match.DifferenceAmount.ToString("C"))</span>
+                                }
+                                else
+                                {
+                                    <span class="status-pill pill-pending">Manual</span>
+                                }
+                            </td>
+                            <td class="text-muted small">@match.Note</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
-                                    Nenhum match realizado até o momento. Importe um arquivo CSV para rodar o motor.
-                                </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            @foreach (var match in Model)
-                            {
-                                <tr>
-                                    <td class="ps-4 text-muted">@match.ReconciledAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td class="fw-semibold">@match.InternalTransaction.ExternalReference</td>
-                                    <td>@match.BankStatement.OriginalReference</td>
-                                    <td class="fw-bold">@match.InternalTransaction.Amount.ToString("C")</td>
-                                    <td class="fw-bold text-success">@match.BankStatement.NetAmount.ToString("C")</td>
-                                    <td>
-                                        @if (match.MatchType == FinReconcile.Models.MatchType.Exact)
-                                        {
-                                            <span class="badge bg-success">Exato</span>
-                                        }
-                                        else if (match.MatchType == FinReconcile.Models.MatchType.Tolerance)
-                                        {
-                                            <span class="badge bg-info text-dark">Tolerância (@match.DifferenceAmount.ToString("C"))</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Manual</span>
-                                        }
-                                    </td>
-                                    <td class="text-muted small">@match.Note</td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    }
+                }
+            </tbody>
+        </table>
     </div>
 </div>

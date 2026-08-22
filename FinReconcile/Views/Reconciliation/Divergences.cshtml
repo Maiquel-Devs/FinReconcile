@@ -1,157 +1,147 @@
 @model FinReconcile.Models.DivergenceViewModel
 
 @{
-    ViewData["Title"] = "Divergências e Conciliação Manual";
+    ViewData["Title"] = "Fila de Divergências";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Fila de Divergências</h1>
-            <p class="text-muted mb-0">Itens sem correspondência automática aguardando auditoria manual</p>
-        </div>
-        <a asp-action="Upload" class="btn btn-outline-primary">
-            <i class="bi bi-eye me-1"></i> Ver Matches Realizados
-        </a>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h1 class="h4 fw-bold mb-1">Mesa de Divergências</h1>
+        <p class="text-muted small mb-0">Itens não correspondidos automaticamente aguardando conciliação manual</p>
     </div>
+    <a asp-action="Upload" class="btn btn-outline-secondary px-3">
+        <i class="bi bi-arrow-left-right me-1"></i> Ver Matches
+    </a>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <!-- Formulário de Match Manual -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h6 class="m-0 fw-bold text-primary">Forçar Conciliação Manual (1 para 1)</h6>
-        </div>
-        <div class="card-body">
-            <form asp-action="ManualReconcile" method="post" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">1. Lançamento Interno Pendente</label>
-                    <select name="internalTransactionId" class="form-select" required>
-                        <option value="">Selecione o lançamento...</option>
-                        @foreach (var tx in Model.UnmatchedInternalTransactions)
-                        {
-                            <option value="@tx.Id">#@tx.Id - @tx.ExternalReference (@tx.Amount.ToString("C"))</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">2. Extrato Pendente / Divergente</label>
-                    <select name="bankStatementId" class="form-select" required>
-                        <option value="">Selecione o extrato...</option>
-                        @foreach (var st in Model.UnmatchedBankStatements)
-                        {
-                            <option value="@st.Id">#@st.Id - @st.OriginalReference (Líq: @st.NetAmount.ToString("C"))</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">3. Justificativa / Nota</label>
-                    <input type="text" name="note" class="form-control" placeholder="Ex: Ajuste acordado com adquirente" />
-                </div>
-                <div class="col-md-1 d-grid">
-                    <button type="submit" class="btn btn-success shadow-sm">
-                        <i class="bi bi-link-45deg"></i> Ligar
-                    </button>
-                </div>
-            </form>
-        </div>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+        <div>@TempData["Success"]</div>
     </div>
+}
 
-    <!-- Tabelas Lado a Lado -->
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-danger">Lançamentos Internos Pendentes (@Model.UnmatchedInternalTransactions.Count)</h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div>@TempData["Error"]</div>
+    </div>
+}
+
+<!-- Manual Match Card -->
+<div class="card-panel mb-4 p-4">
+    <div class="fw-semibold mb-3">Vincular Transação e Extrato Manualmente</div>
+    <form asp-action="ManualReconcile" method="post" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted text-uppercase fw-semibold">1. Lançamento Pendente</label>
+            <select name="internalTransactionId" class="form-select" required>
+                <option value="">Selecione o lançamento...</option>
+                @foreach (var tx in Model.UnmatchedInternalTransactions)
+                {
+                    <option value="@tx.Id">#@tx.Id - @tx.ExternalReference (@tx.Amount.ToString("C"))</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small text-muted text-uppercase fw-semibold">2. Extrato Bancário</label>
+            <select name="bankStatementId" class="form-select" required>
+                <option value="">Selecione o extrato...</option>
+                @foreach (var st in Model.UnmatchedBankStatements)
+                {
+                    <option value="@st.Id">#@st.Id - @st.OriginalReference (Líq: @st.NetAmount.ToString("C"))</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted text-uppercase fw-semibold">3. Justificativa</label>
+            <input type="text" name="note" class="form-control" placeholder="Ex: Ajuste de spread aprovado" />
+        </div>
+        <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-link-45deg"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Comparison Grid -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card-panel h-100">
+            <div class="card-panel-header">
+                <span class="fw-semibold text-danger">Lançamentos Internos Pendentes</span>
+                <span class="badge bg-danger bg-opacity-10 text-danger mono-num">@Model.UnmatchedInternalTransactions.Count</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table-fintech">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Referência</th>
+                            <th>Data</th>
+                            <th class="text-end">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.UnmatchedInternalTransactions.Any())
+                        {
+                            <tr><td colspan="4" class="text-center py-4 text-muted">Nenhum item pendente.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.UnmatchedInternalTransactions)
+                            {
                                 <tr>
-                                    <th class="ps-3">ID</th>
-                                    <th>Referência</th>
-                                    <th>Data</th>
-                                    <th>Valor</th>
+                                    <td class="text-muted mono-num">#@item.Id</td>
+                                    <td class="fw-semibold">@item.ExternalReference</td>
+                                    <td class="text-muted mono-num">@item.TransactionDate.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end fw-bold mono-num">@item.Amount.ToString("C")</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @if (!Model.UnmatchedInternalTransactions.Any())
-                                {
-                                    <tr><td colspan="4" class="text-center py-3 text-muted">Nenhum lançamento interno pendente.</td></tr>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Model.UnmatchedInternalTransactions)
-                                    {
-                                        <tr>
-                                            <td class="ps-3 text-muted">#@item.Id</td>
-                                            <td class="fw-semibold">@item.ExternalReference</td>
-                                            <td>@item.TransactionDate.ToString("dd/MM/yyyy")</td>
-                                            <td class="fw-bold">@item.Amount.ToString("C")</td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            }
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-danger">Extratos Bancários Divergentes (@Model.UnmatchedBankStatements.Count)</h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+    <div class="col-lg-6">
+        <div class="card-panel h-100">
+            <div class="card-panel-header">
+                <span class="fw-semibold text-danger">Extratos sem Correspondência</span>
+                <span class="badge bg-danger bg-opacity-10 text-danger mono-num">@Model.UnmatchedBankStatements.Count</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table-fintech">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Referência Extrato</th>
+                            <th>Data</th>
+                            <th class="text-end">Valor Líquido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.UnmatchedBankStatements.Any())
+                        {
+                            <tr><td colspan="4" class="text-center py-4 text-muted">Nenhum extrato divergente.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.UnmatchedBankStatements)
+                            {
                                 <tr>
-                                    <th class="ps-3">ID</th>
-                                    <th>Ref. Extrato</th>
-                                    <th>Data</th>
-                                    <th>Bruto</th>
-                                    <th>Líquido</th>
+                                    <td class="text-muted mono-num">#@item.Id</td>
+                                    <td class="fw-semibold">@item.OriginalReference</td>
+                                    <td class="text-muted mono-num">@item.StatementDate.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end fw-bold mono-num text-primary">@item.NetAmount.ToString("C")</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @if (!Model.UnmatchedBankStatements.Any())
-                                {
-                                    <tr><td colspan="5" class="text-center py-3 text-muted">Nenhum extrato divergente.</td></tr>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Model.UnmatchedBankStatements)
-                                    {
-                                        <tr>
-                                            <td class="ps-3 text-muted">#@item.Id</td>
-                                            <td class="fw-semibold">@item.OriginalReference</td>
-                                            <td>@item.StatementDate.ToString("dd/MM/yyyy")</td>
-                                            <td>@item.Amount.ToString("C")</td>
-                                            <td class="fw-bold text-primary">@item.NetAmount.ToString("C")</td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            }
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
