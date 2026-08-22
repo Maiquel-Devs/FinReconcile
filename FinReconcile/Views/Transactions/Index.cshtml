@@ -1,0 +1,89 @@
+@model IEnumerable<FinReconcile.Models.InternalTransaction>
+
+@{
+    ViewData["Title"] = "Lançamentos Internos";
+    var totalAmount = Model.Sum(x => x.Amount);
+    var pendingCount = Model.Count(x => x.Status == FinReconcile.Models.TransactionStatus.Pending);
+    var reconciledCount = Model.Count(x => x.Status == FinReconcile.Models.TransactionStatus.Reconciled);
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Lançamentos do Sistema</h1>
+            <p class="text-muted mb-0">Base de dados interna para conciliação contábil</p>
+        </div>
+        <a asp-controller="Reconciliation" asp-action="Upload" class="btn btn-primary shadow-sm">
+            <i class="bi bi-cloud-arrow-up me-1"></i> Importar Extrato Bancário
+        </a>
+    </div>
+
+    <!-- Cards de Resumo -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-primary border-4 p-3">
+                <div class="text-muted small text-uppercase fw-bold">Total Lançado</div>
+                <div class="h4 mb-0 fw-bold text-dark">@totalAmount.ToString("C")</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-warning border-4 p-3">
+                <div class="text-muted small text-uppercase fw-bold">Pendentes de Match</div>
+                <div class="h4 mb-0 fw-bold text-warning">@pendingCount</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-start border-success border-4 p-3">
+                <div class="text-muted small text-uppercase fw-bold">Conciliados</div>
+                <div class="h4 mb-0 fw-bold text-success">@reconciledCount</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Lançamentos -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h6 class="m-0 fw-bold text-primary">Registros no Livro-Razão (Ledger)</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Referência / Doc</th>
+                            <th>Data do Evento</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted">#@item.Id</td>
+                                <td class="fw-semibold">@item.ExternalReference</td>
+                                <td>@item.TransactionDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="fw-bold">@item.Amount.ToString("C")</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case FinReconcile.Models.TransactionStatus.Pending:
+                                            <span class="badge bg-warning text-dark px-2 py-1">Pendente</span>
+                                            break;
+                                        case FinReconcile.Models.TransactionStatus.Reconciled:
+                                            <span class="badge bg-success px-2 py-1">Conciliado</span>
+                                            break;
+                                        case FinReconcile.Models.TransactionStatus.Divergent:
+                                            <span class="badge bg-danger px-2 py-1">Divergente</span>
+                                            break;
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

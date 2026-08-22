@@ -12,6 +12,14 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Executa o Seed Data ao inicializar a aplicação
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    DbInitializer.Seed(context);
+}
+
 // 3. Pipeline de requisições HTTP
 if (!app.Environment.IsDevelopment())
 {
