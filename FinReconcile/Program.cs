@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using FinReconcile.Data;
+using FinReconcile.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Configuração do Entity Framework Core com SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IReconciliationService, ReconciliationService>();
 
 // 2. Registra os controllers e views MVC
 builder.Services.AddControllersWithViews();
