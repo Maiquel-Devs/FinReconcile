@@ -1,17 +1,37 @@
+version: '3.8'
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: finreconcile-sqlserver
-    user: "0:0"
+    container_name: finreconcile_sql
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Your_Strong_Password123!
+      - MSSQL_SA_PASSWORD=YourStrong@Password2026
     ports:
       - "1433:1433"
+    networks:
+      - finreconcile_net
     volumes:
-      - sqlserver_data:/var/opt/mssql/data
-    restart: unless-stopped
+      - sql_data:/var/opt/mssql
+
+  webapp:
+    build:
+      context: ./FinReconcile
+      dockerfile: Dockerfile
+    container_name: finreconcile_app
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FinReconcileDb;User Id=sa;Password=YourStrong@Password2026;TrustServerCertificate=True;
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sqlserver
+    networks:
+      - finreconcile_net
+
+networks:
+  finreconcile_net:
+    driver: bridge
 
 volumes:
-  sqlserver_data:
-    driver: local
+  sql_data:

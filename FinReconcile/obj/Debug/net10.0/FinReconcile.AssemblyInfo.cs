@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FinReconcile")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c54ba6818aea6079708d667ff6398f6e2de40996")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c4ab52fad22522c44b363894e0d48d00f84f51e7")]
 [assembly: System.Reflection.AssemblyProductAttribute("FinReconcile")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FinReconcile")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
