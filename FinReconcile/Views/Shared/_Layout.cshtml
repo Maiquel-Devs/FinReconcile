@@ -1,9 +1,18 @@
-﻿<!DOCTYPE html>
+﻿@using System.Globalization
+
+@{
+    var culturaPtBr = new CultureInfo("pt-BR");
+    var competenciaAtual = DateTime.Now.ToString("MMMM/yyyy", culturaPtBr);
+    competenciaAtual = char.ToUpper(competenciaAtual[0]) + competenciaAtual.Substring(1);
+}
+
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FinReconcile</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232563eb'/><path d='M16 8L8 13.5L16 19L24 13.5L16 8Z' fill='%23ffffff'/><path d='M8 18.5L16 24L24 18.5' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -56,7 +65,9 @@
                     Plataforma de Auditoria e Fechamento Contábil
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-light text-secondary border px-2 py-1 small">Ambiente Dev</span>
+                    <span class="badge bg-light text-secondary border px-2 py-1 small">
+                        Competência: @competenciaAtual
+                    </span>
                 </div>
             </header>
 

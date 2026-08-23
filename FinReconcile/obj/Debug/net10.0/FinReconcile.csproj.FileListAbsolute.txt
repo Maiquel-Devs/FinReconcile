@@ -230,4 +230,4 @@ C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\bin\Debug\net10.0\r
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\bin\Debug\net10.0\runtimes\win-x86\native\msalruntime_x86.dll
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\FinReconcile.csproj.AssemblyReference.cache
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\FinRecon.9C6AD65B.Up2Date
-C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\ouxg2rwvy6-{0}-6rg75wg5uo-6rg75wg5uo.gz
+C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\ouxg2rwvy6-{0}-6ke95gpkcm-6ke95gpkcm.gz
