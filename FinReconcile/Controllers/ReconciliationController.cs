@@ -30,19 +30,38 @@ public class ReconciliationController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(IFormFile? file)
     {
+        // 1. Validação de presença e tamanho
         if (file == null || file.Length == 0)
         {
             TempData["Error"] = "Por favor, selecione um arquivo CSV válido.";
             return RedirectToAction(nameof(Upload));
         }
 
-        using var stream = file.OpenReadStream();
-        var batchId = await _reconciliationService.ProcessStatementCsvAsync(stream);
-        await _reconciliationService.RunReconciliationAsync(batchId);
+        // 2. Validação estrita de extensão (.csv apenas)
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (extension != ".csv")
+        {
+            TempData["Error"] = "Extensão inválida. Apenas arquivos com extensão .csv são permitidos.";
+            return RedirectToAction(nameof(Upload));
+        }
 
-        TempData["Success"] = "Extrato importado e processado com sucesso!";
+        // 3. Processamento seguro sem vazamento de Stack Trace
+        try
+        {
+            using var stream = file.OpenReadStream();
+            var batchId = await _reconciliationService.ProcessStatementCsvAsync(stream);
+            await _reconciliationService.RunReconciliationAsync(batchId);
+
+            TempData["Success"] = "Extrato importado e processado com sucesso!";
+        }
+        catch (Exception)
+        {
+            TempData["Error"] = "O arquivo enviado não possui o layout de colunas esperado ou contém dados inválidos.";
+        }
+
         return RedirectToAction(nameof(Upload));
     }
 
@@ -69,6 +88,7 @@ public class ReconciliationController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ManualReconcile(int internalTransactionId, int bankStatementId, string note)
     {
         try

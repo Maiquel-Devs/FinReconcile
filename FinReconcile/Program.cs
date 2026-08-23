@@ -6,6 +6,12 @@ using FinReconcile.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Oculta o header Server: Kestrel
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.AddServerHeader = false;
+});
+
 // Força cultura pt-BR no container Linux
 var defaultCulture = new CultureInfo("pt-BR");
 var localizationOptions = new RequestLocalizationOptions
@@ -15,7 +21,7 @@ var localizationOptions = new RequestLocalizationOptions
     SupportedUICultures = new List<CultureInfo> { defaultCulture }
 };
 
-// 1. Configuração do Entity Framework Core com resiliência
+// Configuração do EF Core
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -29,10 +35,18 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Aplica a cultura pt-BR
+// Injeção de Security Headers globais
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
+
 app.UseRequestLocalization(localizationOptions);
 
-// 2. Executa as migrações automáticas e o Seed Data
+// Migrações automáticas e Seed Data resiliente
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
