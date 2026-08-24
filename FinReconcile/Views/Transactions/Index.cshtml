@@ -2,23 +2,27 @@
 
 @{
     ViewData["Title"] = "Lançamentos Internos";
-    var totalAmount = Model.Sum(x => x.Amount);
-    var pendingCount = Model.Count(x => x.Status == FinReconcile.Models.TransactionStatus.Pending);
-    var reconciledCount = Model.Count(x => x.Status == FinReconcile.Models.TransactionStatus.Reconciled);
+
+    // Otimização: Materializa a coleção para evitar múltiplas enumerações no Razor
+    var transactions = Model as IList<FinReconcile.Models.InternalTransaction> ?? Model.ToList();
+    var totalAmount = transactions.Sum(x => x.Amount);
+    var pendingCount = transactions.Count(x => x.Status == FinReconcile.Models.TransactionStatus.Pending);
+    var reconciledCount = transactions.Count(x => x.Status == FinReconcile.Models.TransactionStatus.Reconciled);
 }
 
-<div class="d-flex justify-content-between align-items-end mb-4">
+<!-- SECTION: Page Header -->
+<header class="d-flex justify-content-between align-items-end mb-4">
     <div>
         <h1 class="h4 fw-bold mb-1">Livro-Razão Interno</h1>
         <p class="text-muted small mb-0">Lançamentos operacionais registrados no sistema para conferência de liquidação</p>
     </div>
-    <a asp-controller="Reconciliation" asp-action="Upload" class="btn btn-primary px-3 shadow-sm">
-        <i class="bi bi-upload me-1"></i> Importar Extrato
+    <a asp-controller="Reconciliation" asp-action="Upload" class="btn btn-primary px-3 shadow-sm" aria-label="Navegar para importação de extrato">
+        <i class="bi bi-upload me-1" aria-hidden="true"></i> Importar Extrato
     </a>
-</div>
+</header>
 
-<!-- Metrics Cards -->
-<div class="row g-3 mb-4">
+<!-- SECTION: Key Performance Indicators (KPIs) -->
+<section class="row g-3 mb-4" aria-label="Métricas de resumo financeiro">
     <div class="col-md-4">
         <div class="metric-card">
             <span class="metric-header">Volume Total Registrado</span>
@@ -37,56 +41,69 @@
             <span class="metric-body mono-num text-success">@reconciledCount</span>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Table Card -->
-<div class="card-panel">
-    <div class="card-panel-header">
-        <span class="fw-semibold">Transações do Período</span>
-        <span class="text-muted small mono-num">@Model.Count() registros</span>
-    </div>
+<!-- SECTION: Transactions Table -->
+<section class="card-panel" aria-labelledby="transactions-table-title">
+    <header class="card-panel-header">
+        <h2 id="transactions-table-title" class="fw-semibold h6 m-0">Transações do Período</h2>
+        <span class="text-muted small mono-num" aria-label="Total de registros listados">
+            @transactions.Count registros
+        </span>
+    </header>
     <div class="table-responsive">
-        <table class="table-fintech">
+        <table class="table-fintech" aria-label="Tabela de lançamentos operacionais internos">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Documento / Referência</th>
-                    <th>Data do Evento</th>
-                    <th class="text-end">Valor Esperado</th>
-                    <th class="text-center">Status</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Documento / Referência</th>
+                    <th scope="col">Data do Evento</th>
+                    <th scope="col" class="text-end">Valor Esperado</th>
+                    <th scope="col" class="text-center">Status</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @if (!transactions.Any())
                 {
                     <tr>
-                        <td class="text-muted mono-num">#@item.Id</td>
-                        <td class="fw-semibold">@item.ExternalReference</td>
-                        <td class="text-muted mono-num">@item.TransactionDate.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td class="text-end fw-bold mono-num">@item.Amount.ToString("C")</td>
-                        <td class="text-center">
-                            @switch (item.Status)
-                            {
-                                case FinReconcile.Models.TransactionStatus.Pending:
-                                    <span class="status-pill pill-pending">
-                                        <i class="bi bi-clock"></i> Pendente
-                                    </span>
-                                    break;
-                                case FinReconcile.Models.TransactionStatus.Reconciled:
-                                    <span class="status-pill pill-reconciled">
-                                        <i class="bi bi-check2-circle"></i> Conciliado
-                                    </span>
-                                    break;
-                                case FinReconcile.Models.TransactionStatus.Divergent:
-                                    <span class="status-pill pill-divergent">
-                                        <i class="bi bi-exclamation-octagon"></i> Divergente
-                                    </span>
-                                    break;
-                            }
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            Nenhum lançamento interno registrado.
                         </td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var item in transactions)
+                    {
+                        <tr>
+                            <td class="text-muted mono-num">#@item.Id</td>
+                            <td class="fw-semibold">@item.ExternalReference</td>
+                            <td class="text-muted mono-num">@item.TransactionDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="text-end fw-bold mono-num">@item.Amount.ToString("C")</td>
+                            <td class="text-center">
+                                @switch (item.Status)
+                                {
+                                    case FinReconcile.Models.TransactionStatus.Pending:
+                                        <span class="status-pill pill-pending">
+                                            <i class="bi bi-clock" aria-hidden="true"></i> Pendente
+                                        </span>
+                                        break;
+                                    case FinReconcile.Models.TransactionStatus.Reconciled:
+                                        <span class="status-pill pill-reconciled">
+                                            <i class="bi bi-check2-circle" aria-hidden="true"></i> Conciliado
+                                        </span>
+                                        break;
+                                    case FinReconcile.Models.TransactionStatus.Divergent:
+                                        <span class="status-pill pill-divergent">
+                                            <i class="bi bi-exclamation-octagon" aria-hidden="true"></i> Divergente
+                                        </span>
+                                        break;
+                                }
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
     </div>
-</div>
+</section>

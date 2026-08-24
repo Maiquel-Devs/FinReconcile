@@ -1,9 +1,16 @@
 ﻿@using System.Globalization
 
 @{
+    // COMPORTAMENTO RAZOR: Formata a competência atual (ex: agosto/2026 -> Agosto/2026).
+    // Nota de Clean Code: Em cenários avançados, formatações de data devem ficar 
+    // preferencialmente em Extensões (Helpers) ou ViewModels para manter a View 100% limpa.
     var culturaPtBr = new CultureInfo("pt-BR");
-    var competenciaAtual = DateTime.Now.ToString("MMMM/yyyy", culturaPtBr);
-    competenciaAtual = char.ToUpper(competenciaAtual[0]) + competenciaAtual.Substring(1);
+    var mesAno = DateTime.Now.ToString("MMMM/yyyy", culturaPtBr);
+    var competenciaAtual = string.Concat(mesAno[0].ToString().ToUpper(), mesAno.AsSpan(1));
+    
+    // Variáveis auxiliares para controle de rota (Menu Ativo)
+    var controllerAtual = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var actionAtual = ViewContext.RouteData.Values["Action"]?.ToString();
 }
 
 <!DOCTYPE html>
@@ -12,71 +19,91 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FinReconcile</title>
+    
+    <!-- Meta & Ícones -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232563eb'/><path d='M16 8L8 13.5L16 19L24 13.5L16 8Z' fill='%23ffffff'/><path d='M8 18.5L16 24L24 18.5' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>" />
+    
+    <!-- CSS Dependencies -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        
+        <!-- SECTION: Sidebar -->
+        <aside class="sidebar" aria-label="Barra lateral">
+            <!-- Brand Logo -->
             <div class="brand-section">
-                <div class="brand-logo">
+                <div class="brand-logo" aria-hidden="true">
                     <i class="bi bi-layers-half"></i>
                 </div>
-                <span>FinReconcile</span>
+                <span class="fw-bold">FinReconcile</span>
             </div>
 
-            <ul class="nav-menu">
-                <li>
-                    <a class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Transactions" ? "active" : "")" 
-                       asp-controller="Transactions" asp-action="Index">
-                        <i class="bi bi-book"></i>
-                        <span>Lançamentos</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Upload" ? "active" : "")" 
-                       asp-controller="Reconciliation" asp-action="Upload">
-                        <i class="bi bi-arrow-left-right"></i>
-                        <span>Matches & Extratos</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Divergences" ? "active" : "")" 
-                       asp-controller="Reconciliation" asp-action="Divergences">
-                        <i class="bi bi-shield-exclamation"></i>
-                        <span>Divergências</span>
-                    </a>
-                </li>
-            </ul>
+            <!-- Main Navigation -->
+            <nav aria-label="Menu principal">
+                <ul class="nav-menu">
+                    <li>
+                        @{ var isTransactions = controllerAtual == "Transactions"; }
+                        <a class="@(isTransactions ? "active" : "")" 
+                           asp-controller="Transactions" asp-action="Index"
+                           aria-current="@(isTransactions ? "page" : null)">
+                            <i class="bi bi-book" aria-hidden="true"></i>
+                            <span>Lançamentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        @{ var isUpload = actionAtual == "Upload"; }
+                        <a class="@(isUpload ? "active" : "")" 
+                           asp-controller="Reconciliation" asp-action="Upload"
+                           aria-current="@(isUpload ? "page" : null)">
+                            <i class="bi bi-arrow-left-right" aria-hidden="true"></i>
+                            <span>Matches & Extratos</span>
+                        </a>
+                    </li>
+                    <li>
+                        @{ var isDivergences = actionAtual == "Divergences"; }
+                        <a class="@(isDivergences ? "active" : "")" 
+                           asp-controller="Reconciliation" asp-action="Divergences"
+                           aria-current="@(isDivergences ? "page" : null)">
+                            <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+                            <span>Divergências</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-            <div class="sidebar-footer">
-                <div class="engine-pulse"></div>
-                <span>Motor Conectado (Docker SQL)</span>
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer" aria-label="Status de conexão">
+                <div class="engine-pulse" aria-hidden="true"></div>
+                <span class="small text-muted">Motor Conectado (Docker SQL)</span>
             </div>
         </aside>
 
-        <!-- Main Area -->
+        <!-- SECTION: Main Workspace -->
         <div class="main-viewport">
-            <header class="topbar-minimal">
+            
+            <!-- Top Header -->
+            <header class="topbar-minimal" aria-label="Cabeçalho de informações">
                 <div class="text-muted small fw-medium">
                     Plataforma de Auditoria e Fechamento Contábil
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-light text-secondary border px-2 py-1 small">
+                    <span class="badge bg-light text-secondary border px-2 py-1 small" aria-label="Mês de competência atual">
                         Competência: @competenciaAtual
                     </span>
                 </div>
             </header>
 
-            <main class="page-wrapper">
+            <!-- Page Content -->
+            <main class="page-wrapper" id="main-content">
                 @RenderBody()
             </main>
         </div>
     </div>
 
+    <!-- SECTION: Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

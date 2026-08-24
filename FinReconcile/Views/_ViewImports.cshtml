@@ -1,3 +1,15 @@
-﻿@using FinReconcile
+﻿@*
+    ================================================================================
+    ARQUIVO: _ViewImports.cshtml
+    PROPÓSITO: Configura diretivas globais para todas as Views da aplicação.
+    O que for declarado aqui fica disponível automaticamente em todas as telas, 
+    evitando a repetição de código.
+    ================================================================================
+*@
+
+@* 1. Namespaces globais (Models, DTOs, Enums) *@
+@using FinReconcile
 @using FinReconcile.Models
+
+@* 2. Motor de Tag Helpers da Microsoft (habilita atributos como asp-action, asp-controller, etc.) *@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

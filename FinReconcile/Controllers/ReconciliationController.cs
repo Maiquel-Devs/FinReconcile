@@ -6,6 +6,10 @@ using FinReconcile.Services;
 
 namespace FinReconcile.Controllers;
 
+/// <summary>
+/// Gerencia as operações de conciliação bancária, incluindo upload de extratos, 
+/// visualização de divergências e conciliação manual.
+/// </summary>
 public class ReconciliationController : Controller
 {
     private readonly IReconciliationService _reconciliationService;
@@ -17,10 +21,15 @@ public class ReconciliationController : Controller
         _context = context;
     }
 
+    /// <summary>
+    /// Exibe o histórico de transações conciliadas.
+    /// </summary>
+    /// <returns>View contendo a lista de conciliações realizadas.</returns>
     [HttpGet]
     public async Task<IActionResult> Upload()
     {
         var matches = await _context.ReconciliationMatches
+            .AsNoTracking() // Otimização: Evita overhead do EF Core em consultas de leitura
             .Include(m => m.InternalTransaction)
             .Include(m => m.BankStatement)
             .OrderByDescending(m => m.ReconciledAt)
@@ -29,26 +38,27 @@ public class ReconciliationController : Controller
         return View(matches);
     }
 
+    /// <summary>
+    /// Processa o upload de um arquivo de extrato bancário (formato CSV) e executa a conciliação automática.
+    /// </summary>
+    /// <param name="file">Arquivo CSV contendo o extrato bancário.</param>
+    /// <returns>Redireciona para a tela de upload com mensagem de sucesso ou erro.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(IFormFile? file)
     {
-        // 1. Validação de presença e tamanho
-        if (file == null || file.Length == 0)
+        if (!IsValidFile(file))
         {
             TempData["Error"] = "Por favor, selecione um arquivo CSV válido.";
             return RedirectToAction(nameof(Upload));
         }
 
-        // 2. Validação estrita de extensão (.csv apenas)
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (extension != ".csv")
+        if (!IsCsvExtension(file!.FileName))
         {
             TempData["Error"] = "Extensão inválida. Apenas arquivos com extensão .csv são permitidos.";
             return RedirectToAction(nameof(Upload));
         }
 
-        // 3. Processamento seguro sem vazamento de Stack Trace
         try
         {
             using var stream = file.OpenReadStream();
@@ -65,28 +75,44 @@ public class ReconciliationController : Controller
         return RedirectToAction(nameof(Upload));
     }
 
+    /// <summary>
+    /// Exibe as transações internas e do extrato que estão pendentes ou divergentes.
+    /// </summary>
+    /// <returns>View contendo as transações não conciliadas.</returns>
     [HttpGet]
     public async Task<IActionResult> Divergences()
     {
-        var unmatchedTx = await _context.InternalTransactions
+        // Otimização: Dispara ambas as consultas ao banco paralelamente
+        var unmatchedTxTask = _context.InternalTransactions
+            .AsNoTracking()
             .Where(t => t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.Divergent)
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
 
-        var unmatchedStatements = await _context.BankStatements
+        var unmatchedStatementsTask = _context.BankStatements
+            .AsNoTracking()
             .Where(b => b.Status == TransactionStatus.Pending || b.Status == TransactionStatus.Divergent)
             .OrderByDescending(b => b.StatementDate)
             .ToListAsync();
 
+        await Task.WhenAll(unmatchedTxTask, unmatchedStatementsTask);
+
         var viewModel = new DivergenceViewModel
         {
-            UnmatchedInternalTransactions = unmatchedTx,
-            UnmatchedBankStatements = unmatchedStatements
+            UnmatchedInternalTransactions = unmatchedTxTask.Result,
+            UnmatchedBankStatements = unmatchedStatementsTask.Result
         };
 
         return View(viewModel);
     }
 
+    /// <summary>
+    /// Executa a conciliação manual entre uma transação interna e uma transação do extrato.
+    /// </summary>
+    /// <param name="internalTransactionId">Identificador da transação interna.</param>
+    /// <param name="bankStatementId">Identificador da transação do extrato bancário.</param>
+    /// <param name="note">Anotação opcional sobre a conciliação manual.</param>
+    /// <returns>Redireciona para a tela de divergências com o resultado da operação.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ManualReconcile(int internalTransactionId, int bankStatementId, string note)
@@ -103,4 +129,13 @@ public class ReconciliationController : Controller
 
         return RedirectToAction(nameof(Divergences));
     }
+
+    #region Private Validation Methods
+
+    private static bool IsValidFile(IFormFile? file) => file != null && file.Length > 0;
+
+    private static bool IsCsvExtension(string fileName) 
+        => Path.GetExtension(fileName).Equals(".csv", StringComparison.OrdinalIgnoreCase);
+
+    #endregion
 }

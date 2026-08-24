@@ -23,7 +23,6 @@ C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\s
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\scopedcss\bundle\FinReconcile.styles.css
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\scopedcss\projectbundle\FinReconcile.bundle.scp.css
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\3q2k49orc5-{0}-61n19gt1b8-61n19gt1b8.gz
-C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\qc4kulafby-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\sh5dejpuw2-{0}-bqjiyaj88i-bqjiyaj88i.gz
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\906zyfe1zd-{0}-c2jlpeoesf-c2jlpeoesf.gz
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\kfh2tpg8jw-{0}-erw9l3u2r3-erw9l3u2r3.gz
@@ -83,8 +82,6 @@ C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\c
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\7m3xdhj8p5-{0}-muycvpuwrr-muycvpuwrr.gz
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\amuq26kk5d-{0}-87fc7y1x7t-87fc7y1x7t.gz
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\e73m0ypbwd-{0}-mlv21k5csn-mlv21k5csn.gz
-C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\89nfchm3uv-{0}-orvpog8hg9-orvpog8hg9.gz
-C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\18itmfas8q-{0}-orvpog8hg9-orvpog8hg9.gz
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\staticwebassets.build.json
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\staticwebassets.build.json.cache
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\staticwebassets.development.json
@@ -230,4 +227,7 @@ C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\bin\Debug\net10.0\r
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\bin\Debug\net10.0\runtimes\win-x86\native\msalruntime_x86.dll
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\FinReconcile.csproj.AssemblyReference.cache
 C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\FinRecon.9C6AD65B.Up2Date
-C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\ouxg2rwvy6-{0}-6ke95gpkcm-6ke95gpkcm.gz
+C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\ouxg2rwvy6-{0}-cb84p5nrvf-cb84p5nrvf.gz
+C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\qc4kulafby-{0}-zxmuf65ubc-zxmuf65ubc.gz
+C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\89nfchm3uv-{0}-gr4r32791q-gr4r32791q.gz
+C:\Users\Maiquel\Documents\Estudos\FinReconcile\FinReconcile\obj\Debug\net10.0\compressed\18itmfas8q-{0}-gr4r32791q-gr4r32791q.gz

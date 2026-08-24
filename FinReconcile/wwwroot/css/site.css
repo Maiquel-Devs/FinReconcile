@@ -1,21 +1,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
+/* ==========================================================================
+   FinReconcile - Design System & App Styles
+   
+   ÍNDICE:
+   1. Design System (Variáveis)
+   2. Base & Tipografia
+   3. Estrutura de Layout (App, Sidebar, Main)
+   4. Componentes (Cards, Tabelas)
+   5. Utilitários (Status Pills, Mono-num)
+   ========================================================================== */
+
+/* --- 1. Design System (Variáveis) --- */
 :root {
+  /* Layout Metrics */
+  --sidebar-width: 250px;
+  --topbar-height: 56px;
+  --max-content-width: 1380px;
+
+  /* Theme Colors */
+  --bg-app: #f9fafb;
+  --card-bg: #ffffff;
+  --border-subtle: #e5e7eb;
+  
+  /* Sidebar Colors */
   --sidebar-bg: #111827;
   --sidebar-hover: #1f2937;
   --sidebar-active: #374151;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-text: #9ca3af;
   
-  --bg-app: #f9fafb;
-  --card-bg: #ffffff;
-  --border-subtle: #e5e7eb;
+  /* Text Colors */
   --text-main: #111827;
   --text-muted: #6b7280;
   
+  /* Brand Accents */
   --primary-accent: #2563eb;
   --primary-hover: #1d4ed8;
+  --engine-pulse: #10b981;
   
+  /* Status Colors */
   --success-bg: #ecfdf5;
   --success-text: #065f46;
   --success-border: #a7f3d0;
@@ -28,10 +52,16 @@
   --danger-text: #991b1b;
   --danger-border: #fecaca;
   
+  --tolerance-bg: #eff6ff;
+  --tolerance-text: #1d4ed8;
+  --tolerance-border: #bfdbfe;
+
+  /* Border Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
 }
 
+/* --- 2. Base & Tipografia --- */
 * {
   box-sizing: border-box;
 }
@@ -46,12 +76,7 @@ body {
   letter-spacing: -0.01em;
 }
 
-.mono-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Layout Core */
+/* --- 3. Estrutura de Layout --- */
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -60,13 +85,13 @@ body {
 
 /* Sidebar Fixa na Janela */
 .sidebar {
-  width: 250px;
+  width: var(--sidebar-width);
   height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
   background-color: var(--sidebar-bg);
-  color: #ffffff;
+  color: var(--card-bg);
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--sidebar-border);
@@ -93,7 +118,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--card-bg);
   font-size: 0.95rem;
 }
 
@@ -123,20 +148,20 @@ body {
 
 .nav-menu a:hover {
   background-color: var(--sidebar-hover);
-  color: #ffffff;
+  color: var(--card-bg);
 }
 
 .nav-menu a.active {
   background-color: var(--sidebar-active);
-  color: #ffffff;
+  color: var(--card-bg);
   font-weight: 600;
 }
 
-/* Rodapé da Sidebar com espaçamento e alinhamento */
+/* Rodapé da Sidebar */
 .sidebar-footer {
   padding: 1.25rem;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--sidebar-text);
   border-top: 1px solid var(--sidebar-border);
   display: flex;
   align-items: center;
@@ -149,14 +174,14 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
+  background: var(--engine-pulse);
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
   flex-shrink: 0;
 }
 
-/* Main Content Area - Deslocado 250px para dar espaço à sidebar */
+/* Main Content Area - Deslocado para dar espaço à sidebar */
 .main-viewport {
-  margin-left: 250px;
+  margin-left: var(--sidebar-width);
   flex-grow: 1;
   min-height: 100vh;
   display: flex;
@@ -165,8 +190,8 @@ body {
 }
 
 .topbar-minimal {
-  height: 56px;
-  background-color: #ffffff;
+  height: var(--topbar-height);
+  background-color: var(--card-bg);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -179,13 +204,15 @@ body {
 
 .page-wrapper {
   padding: 2rem;
-  max-width: 1380px;
+  max-width: var(--max-content-width);
   width: 100%;
 }
 
+/* --- 4. Componentes (Cards e Tabelas) --- */
+
 /* Stripe-Style Metrics Cards */
 .metric-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 1.25rem 1.5rem;
@@ -210,9 +237,9 @@ body {
   color: var(--text-main);
 }
 
-/* Clean Tables */
+/* Clean Tables & Panels */
 .card-panel {
-  background: #ffffff;
+  background: var(--card-bg);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -234,7 +261,7 @@ body {
 }
 
 .table-fintech th {
-  background-color: #f9fafb;
+  background-color: var(--bg-app);
   color: var(--text-muted);
   font-size: 0.75rem;
   font-weight: 600;
@@ -252,10 +279,16 @@ body {
 }
 
 .table-fintech tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: #f8fafc; /* Um cinza levíssimo, comum em layouts modernos */
 }
 
-/* Status Badges */
+/* --- 5. Utilitários (Status Pills & Formatações) --- */
+
+.mono-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -285,7 +318,7 @@ body {
 }
 
 .pill-tolerance {
-  background-color: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
+  background-color: var(--tolerance-bg);
+  color: var(--tolerance-text);
+  border: 1px solid var(--tolerance-border);
 }

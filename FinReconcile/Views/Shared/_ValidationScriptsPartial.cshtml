@@ -1,2 +1,11 @@
-﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+﻿<!-- 
+    SECTION: Validação Client-Side
+    Scripts responsáveis por realizar a validação de formulários no navegador 
+    antes do envio ao servidor, integrando-se nativamente com os DataAnnotations do C#.
+-->
+
+<!-- 1. Motor principal de validação de formulários do jQuery -->
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+
+<!-- 2. Adaptador (Unobtrusive) da Microsoft: lê os atributos HTML "data-val-*" gerados pelo ASP.NET Core -->
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>

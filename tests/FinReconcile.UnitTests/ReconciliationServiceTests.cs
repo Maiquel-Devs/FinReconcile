@@ -8,18 +8,26 @@ using MatchType = FinReconcile.Models.MatchType;
 
 namespace FinReconcile.UnitTests;
 
+/// <summary>
+/// Suíte de testes unitários para o motor de conciliação bancária (ReconciliationService).
+/// Garante a integridade das regras de negócio de match automático e manual.
+/// </summary>
 public class ReconciliationServiceTests
 {
-    private ApplicationDbContext GetInMemoryDbContext()
+    /// <summary>
+    /// Utilitário (Factory) para gerar um banco de dados em memória isolado para cada teste.
+    /// O uso do Guid garante que não haverá colisão de dados executando testes em paralelo.
+    /// </summary>
+    private static ApplicationDbContext GetInMemoryDbContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // Garante isolamento por teste
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         return new ApplicationDbContext(options);
     }
 
-    [Fact]
+    [Fact(DisplayName = "Conciliação Automática: Deve efetivar match exato quando referência e valor baterem")]
     public async Task RunReconciliation_ShouldReconcile_WhenExactMatchExists()
     {
         // Arrange
@@ -61,12 +69,13 @@ public class ReconciliationServiceTests
 
         updatedTx!.Status.Should().Be(TransactionStatus.Reconciled);
         updatedStatement!.Status.Should().Be(TransactionStatus.Reconciled);
+        
         match.Should().NotBeNull();
         match!.MatchType.Should().Be(MatchType.Exact);
         match.DifferenceAmount.Should().Be(0.00m);
     }
 
-    [Fact]
+    [Fact(DisplayName = "Conciliação Automática: Deve efetivar match por tolerância (diferença <= 5 centavos)")]
     public async Task RunReconciliation_ShouldReconcile_WhenToleranceDifferenceIsWithin5Cents()
     {
         // Arrange
@@ -87,7 +96,7 @@ public class ReconciliationServiceTests
             BatchId = batchId,
             OriginalReference = "BOL-200",
             Amount = 103.00m,
-            FeeAmount = 3.03m, // Líquido = 99.97 (diferença de 0.03 <= 0.05)
+            FeeAmount = 3.03m, // Valor Líquido = 99.97 (A diferença é de exatos R$ 0,03)
             NetAmount = 99.97m,
             Status = TransactionStatus.Pending
         };
@@ -103,12 +112,13 @@ public class ReconciliationServiceTests
 
         // Assert
         var match = await context.ReconciliationMatches.FirstOrDefaultAsync();
+        
         match.Should().NotBeNull();
         match!.MatchType.Should().Be(MatchType.Tolerance);
         match.DifferenceAmount.Should().Be(0.03m);
     }
 
-    [Fact]
+    [Fact(DisplayName = "Conciliação Automática: Deve marcar como Divergente quando não encontrar par interno")]
     public async Task RunReconciliation_ShouldMarkAsDivergent_WhenNoMatchingTransactionFound()
     {
         // Arrange
@@ -141,7 +151,7 @@ public class ReconciliationServiceTests
         matchCount.Should().Be(0);
     }
 
-    [Fact]
+    [Fact(DisplayName = "Conciliação Manual: Deve forçar reconciliação e salvar a justificativa do operador")]
     public async Task ManualMatch_ShouldForceReconciliation_WithCustomNote()
     {
         // Arrange
@@ -169,9 +179,10 @@ public class ReconciliationServiceTests
         await context.SaveChangesAsync();
 
         var service = new ReconciliationService(context);
+        var operardorNote = "Aprovado pelo gestor financeiro.";
 
         // Act
-        await service.ManualMatchAsync(10, 20, "Aprovado pelo gestor financeiro.");
+        await service.ManualMatchAsync(10, 20, operardorNote);
 
         // Assert
         var updatedTx = await context.InternalTransactions.FindAsync(10);
@@ -180,7 +191,8 @@ public class ReconciliationServiceTests
 
         updatedTx!.Status.Should().Be(TransactionStatus.Reconciled);
         updatedStatement!.Status.Should().Be(TransactionStatus.Reconciled);
+        
         match!.MatchType.Should().Be(MatchType.Manual);
-        match.Note.Should().Be("Aprovado pelo gestor financeiro.");
+        match.Note.Should().Be(operardorNote);
     }
 }

@@ -1,43 +1,37 @@
 /* /Views/Shared/_Layout.cshtml.rz.scp.css */
-/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+/* ==========================================================================
+   FinReconcile - Estilos Globais e Sobrescritas do Bootstrap
+   ========================================================================== */
 
-a.navbar-brand[b-0sec2hhh7b] {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
-
+/* --- 1. Elementos Globais --- */
 a[b-0sec2hhh7b] {
   color: #0077cc;
 }
 
+/* --- 2. Componentes (Botões e Links) --- */
 .btn-primary[b-0sec2hhh7b] {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 
-.nav-pills .nav-link.active[b-0sec2hhh7b], .nav-pills .show > .nav-link[b-0sec2hhh7b] {
+.nav-pills .nav-link.active[b-0sec2hhh7b], 
+.nav-pills .show > .nav-link[b-0sec2hhh7b] {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 
-.border-top[b-0sec2hhh7b] {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom[b-0sec2hhh7b] {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow[b-0sec2hhh7b] {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
 button.accept-policy[b-0sec2hhh7b] {
   font-size: 1rem;
   line-height: inherit;
+}
+
+/* --- 3. Layout (Cabeçalho e Rodapé padrão) --- */
+a.navbar-brand[b-0sec2hhh7b] {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
 }
 
 .footer[b-0sec2hhh7b] {
@@ -46,4 +40,17 @@ button.accept-policy[b-0sec2hhh7b] {
   width: 100%;
   white-space: nowrap;
   line-height: 60px;
+}
+
+/* --- 4. Classes Utilitárias (Helpers) --- */
+.border-top[b-0sec2hhh7b] {
+  border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom[b-0sec2hhh7b] {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow[b-0sec2hhh7b] {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }

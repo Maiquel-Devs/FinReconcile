@@ -4,39 +4,42 @@
     ViewData["Title"] = "Fila de Divergências";
 }
 
-<div class="d-flex justify-content-between align-items-end mb-4">
+<!-- SECTION: Page Header -->
+<header class="d-flex justify-content-between align-items-end mb-4">
     <div>
         <h1 class="h4 fw-bold mb-1">Mesa de Divergências</h1>
         <p class="text-muted small mb-0">Itens não correspondidos automaticamente aguardando conciliação manual</p>
     </div>
-    <a asp-action="Upload" class="btn btn-outline-secondary px-3">
-        <i class="bi bi-arrow-left-right me-1"></i> Ver Matches
+    <a asp-action="Upload" class="btn btn-outline-secondary px-3" aria-label="Voltar para a tela de Upload">
+        <i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i> Ver Matches
     </a>
-</div>
+</header>
 
+<!-- SECTION: Alerts & Notifications -->
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
-        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" role="alert" aria-live="polite">
+        <i class="bi bi-check-circle-fill me-2 fs-5" aria-hidden="true"></i>
         <div>@TempData["Success"]</div>
     </div>
 }
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4" role="alert" aria-live="assertive">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5" aria-hidden="true"></i>
         <div>@TempData["Error"]</div>
     </div>
 }
 
-<!-- Manual Match Card -->
-<div class="card-panel mb-4 p-4">
-    <div class="fw-semibold mb-3">Vincular Transação e Extrato Manualmente</div>
+<!-- SECTION: Manual Match Form -->
+<section class="card-panel mb-4 p-4" aria-labelledby="manual-match-title">
+    <h2 id="manual-match-title" class="fw-semibold mb-3 h5">Vincular Transação e Extrato Manualmente</h2>
+    
     <form asp-action="ManualReconcile" method="post" class="row g-3 align-items-end">
         <div class="col-md-4">
-            <label class="form-label small text-muted text-uppercase fw-semibold">1. Lançamento Pendente</label>
-            <select name="internalTransactionId" class="form-select" required>
+            <label for="internalTransactionId" class="form-label small text-muted text-uppercase fw-semibold">1. Lançamento Pendente</label>
+            <select id="internalTransactionId" name="internalTransactionId" class="form-select" required>
                 <option value="">Selecione o lançamento...</option>
                 @foreach (var tx in Model.UnmatchedInternalTransactions)
                 {
@@ -44,9 +47,10 @@
                 }
             </select>
         </div>
+        
         <div class="col-md-4">
-            <label class="form-label small text-muted text-uppercase fw-semibold">2. Extrato Bancário</label>
-            <select name="bankStatementId" class="form-select" required>
+            <label for="bankStatementId" class="form-label small text-muted text-uppercase fw-semibold">2. Extrato Bancário</label>
+            <select id="bankStatementId" name="bankStatementId" class="form-select" required>
                 <option value="">Selecione o extrato...</option>
                 @foreach (var st in Model.UnmatchedBankStatements)
                 {
@@ -54,40 +58,47 @@
                 }
             </select>
         </div>
+        
         <div class="col-md-3">
-            <label class="form-label small text-muted text-uppercase fw-semibold">3. Justificativa</label>
-            <input type="text" name="note" class="form-control" placeholder="Ex: Ajuste de spread aprovado" />
+            <label for="note" class="form-label small text-muted text-uppercase fw-semibold">3. Justificativa</label>
+            <input type="text" id="note" name="note" class="form-control" placeholder="Ex: Ajuste de spread aprovado" />
         </div>
+        
         <div class="col-md-1 d-grid">
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-link-45deg"></i>
+            <button type="submit" class="btn btn-success" aria-label="Confirmar conciliação manual">
+                <i class="bi bi-link-45deg" aria-hidden="true"></i>
             </button>
         </div>
     </form>
-</div>
+</section>
 
-<!-- Comparison Grid -->
-<div class="row g-4">
+<!-- SECTION: Comparison Grid -->
+<section class="row g-4">
+    <!-- Internal Transactions -->
     <div class="col-lg-6">
         <div class="card-panel h-100">
-            <div class="card-panel-header">
-                <span class="fw-semibold text-danger">Lançamentos Internos Pendentes</span>
-                <span class="badge bg-danger bg-opacity-10 text-danger mono-num">@Model.UnmatchedInternalTransactions.Count</span>
-            </div>
+            <header class="card-panel-header">
+                <h3 class="fw-semibold text-danger m-0 h6">Lançamentos Internos Pendentes</h3>
+                <span class="badge bg-danger bg-opacity-10 text-danger mono-num" aria-label="Total de lançamentos pendentes">
+                    @Model.UnmatchedInternalTransactions.Count
+                </span>
+            </header>
             <div class="table-responsive">
-                <table class="table-fintech">
+                <table class="table-fintech" aria-label="Tabela de lançamentos internos pendentes">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Referência</th>
-                            <th>Data</th>
-                            <th class="text-end">Valor</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Referência</th>
+                            <th scope="col">Data</th>
+                            <th scope="col" class="text-end">Valor</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (!Model.UnmatchedInternalTransactions.Any())
                         {
-                            <tr><td colspan="4" class="text-center py-4 text-muted">Nenhum item pendente.</td></tr>
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">Nenhum item pendente.</td>
+                            </tr>
                         }
                         else
                         {
@@ -107,26 +118,31 @@
         </div>
     </div>
 
+    <!-- Bank Statements -->
     <div class="col-lg-6">
         <div class="card-panel h-100">
-            <div class="card-panel-header">
-                <span class="fw-semibold text-danger">Extratos sem Correspondência</span>
-                <span class="badge bg-danger bg-opacity-10 text-danger mono-num">@Model.UnmatchedBankStatements.Count</span>
-            </div>
+            <header class="card-panel-header">
+                <h3 class="fw-semibold text-danger m-0 h6">Extratos sem Correspondência</h3>
+                <span class="badge bg-danger bg-opacity-10 text-danger mono-num" aria-label="Total de extratos sem correspondência">
+                    @Model.UnmatchedBankStatements.Count
+                </span>
+            </header>
             <div class="table-responsive">
-                <table class="table-fintech">
+                <table class="table-fintech" aria-label="Tabela de extratos bancários sem correspondência">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Referência Extrato</th>
-                            <th>Data</th>
-                            <th class="text-end">Valor Líquido</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Referência Extrato</th>
+                            <th scope="col">Data</th>
+                            <th scope="col" class="text-end">Valor Líquido</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (!Model.UnmatchedBankStatements.Any())
                         {
-                            <tr><td colspan="4" class="text-center py-4 text-muted">Nenhum extrato divergente.</td></tr>
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">Nenhum extrato divergente.</td>
+                            </tr>
                         }
                         else
                         {
@@ -145,4 +161,4 @@
             </div>
         </div>
     </div>
-</div>
+</section>
