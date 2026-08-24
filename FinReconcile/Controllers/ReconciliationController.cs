@@ -82,25 +82,23 @@ public class ReconciliationController : Controller
     [HttpGet]
     public async Task<IActionResult> Divergences()
     {
-        // Otimização: Dispara ambas as consultas ao banco paralelamente
-        var unmatchedTxTask = _context.InternalTransactions
+        // Execução sequencial para respeitar a restrição de thread-safety da mesma instância de DbContext
+        var unmatchedInternalTransactions = await _context.InternalTransactions
             .AsNoTracking()
             .Where(t => t.Status == TransactionStatus.Pending || t.Status == TransactionStatus.Divergent)
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
 
-        var unmatchedStatementsTask = _context.BankStatements
+        var unmatchedBankStatements = await _context.BankStatements
             .AsNoTracking()
             .Where(b => b.Status == TransactionStatus.Pending || b.Status == TransactionStatus.Divergent)
             .OrderByDescending(b => b.StatementDate)
             .ToListAsync();
 
-        await Task.WhenAll(unmatchedTxTask, unmatchedStatementsTask);
-
         var viewModel = new DivergenceViewModel
         {
-            UnmatchedInternalTransactions = unmatchedTxTask.Result,
-            UnmatchedBankStatements = unmatchedStatementsTask.Result
+            UnmatchedInternalTransactions = unmatchedInternalTransactions,
+            UnmatchedBankStatements = unmatchedBankStatements
         };
 
         return View(viewModel);
