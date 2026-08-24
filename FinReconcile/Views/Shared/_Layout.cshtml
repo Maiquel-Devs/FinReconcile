@@ -1,14 +1,13 @@
 ﻿@using System.Globalization
 
 @{
-    // COMPORTAMENTO RAZOR: Formata a competência atual (ex: agosto/2026 -> Agosto/2026).
-    // Nota de Clean Code: Em cenários avançados, formatações de data devem ficar 
-    // preferencialmente em Extensões (Helpers) ou ViewModels para manter a View 100% limpa.
+    // COMPORTAMENTO RAZOR: Formata a competência atual (ex: Agosto/2026).
+    // Prática de Clean Code: Mantém a formatação consistente com a cultura monetária e regional da aplicação (pt-BR).
     var culturaPtBr = new CultureInfo("pt-BR");
     var mesAno = DateTime.Now.ToString("MMMM/yyyy", culturaPtBr);
     var competenciaAtual = string.Concat(mesAno[0].ToString().ToUpper(), mesAno.AsSpan(1));
     
-    // Variáveis auxiliares para controle de rota (Menu Ativo)
+    // Variáveis auxiliares para controle do estado visual ativo na navegação
     var controllerAtual = ViewContext.RouteData.Values["Controller"]?.ToString();
     var actionAtual = ViewContext.RouteData.Values["Action"]?.ToString();
 }
@@ -31,7 +30,7 @@
 <body>
     <div class="app-container">
         
-        <!-- SECTION: Sidebar -->
+        <!-- SECTION: Sidebar (Navegação Principal) -->
         <aside class="sidebar" aria-label="Barra lateral">
             <!-- Brand Logo -->
             <div class="brand-section">
@@ -74,10 +73,14 @@
                 </ul>
             </nav>
 
-            <!-- Sidebar Footer -->
-            <div class="sidebar-footer" aria-label="Status de conexão">
-                <div class="engine-pulse" aria-hidden="true"></div>
-                <span class="small text-muted">Motor Conectado (Docker SQL)</span>
+            <!-- Sidebar Footer: Indicador de Saúde e Conectividade do Banco -->
+            <div class="sidebar-footer mt-auto pt-3 border-top border-secondary border-opacity-25" role="status" aria-label="Status de conexão com o banco">
+                <div class="d-flex align-items-center gap-2 text-nowrap px-1">
+                    <div class="engine-pulse flex-shrink-0" aria-hidden="true"></div>
+                    <span style="font-size: 0.8rem; font-weight: 500; color: #94a3b8;">
+                        Motor Conectado (Docker SQL)
+                    </span>
+                </div>
             </div>
         </aside>
 
