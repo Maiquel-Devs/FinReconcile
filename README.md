@@ -1,11 +1,11 @@
 # 🏦 FinReconcile - Auditoria e Fechamento Contábil
 
 <div align="center">
-  <img src="[https://img.shields.io/badge/.NET_9-512BD4?style=for-the-badge&logo=dotnet&logoColor=white](https://img.shields.io/badge/.NET_9-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)" alt=".NET 9" />
-  <img src="[https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)" alt="C#" />
-  <img src="[https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)" alt="SQL Server" />
-  <img src="[https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)" alt="Docker" />
-  <img src="[https://img.shields.io/badge/Bootstrap_5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white](https://img.shields.io/badge/Bootstrap_5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)" alt="Bootstrap" />
+  <img src="https://img.shields.io/badge/.NET_10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10" />
+  <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" />
+  <img src="https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white" alt="SQL Server" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Bootstrap_5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
 </div>
 
 <br>
@@ -16,9 +16,10 @@ O **FinReconcile** é uma plataforma robusta de conciliação bancária desenvol
 
 ## 🛠️ Stack Tecnológico
 
-*   **Backend:** C#, .NET 9, Entity Framework Core
+*   **Backend:** C#, .NET 10, Entity Framework Core
 *   **Infraestrutura & Banco de Dados:** SQL Server, Docker, Docker Compose
 *   **Frontend:** ASP.NET Core MVC, HTML5, CSS3, Bootstrap 5
+*   **Testes:** xUnit, FluentAssertions (EF Core InMemory)
 *   **Segurança:** OWASP Guidelines, Anti-CSRF, CSP, Server Obfuscation
 
 ---
@@ -27,9 +28,11 @@ O **FinReconcile** é uma plataforma robusta de conciliação bancária desenvol
 
 O projeto foi estruturado com foco em manutenibilidade e performance:
 
-*   **Separação de Responsabilidades:** Design orientado a princípios SOLID e Clean Architecture, dividindo regras de domínio, aplicação e infraestrutura.
-*   **Otimização de Dados:** Uso extensivo de `AsNoTracking()` no EF Core para consultas somente-leitura, eliminando overhead de memória nas listagens financeiras.
-*   **Integridade Contábil:** Garantia de conformidade ACID nas transações do SQL Server, impedindo estados inconsistentes durante as conciliações.
+*   **Separação de Responsabilidades:** Controllers, Services e Data Access isolados, com injeção de dependência via interface (`IReconciliationService`), seguindo os princípios de baixo acoplamento do SOLID.
+*   **Otimização de Dados:** Uso de `AsNoTracking()` no EF Core nas consultas somente-leitura (listagens de lançamentos, matches e divergências), eliminando overhead de memória do change tracker.
+*   **Integridade Contábil:** Cada operação de conciliação (automática ou manual) é persistida em uma única chamada a `SaveChangesAsync`, garantindo atomicidade e evitando estados inconsistentes entre lançamento interno e extrato bancário.
+*   **Resiliência de Infraestrutura:** Estratégia de retry tanto na conexão do EF Core (`EnableRetryOnFailure`) quanto na aplicação das migrations na subida do container, aguardando a inicialização completa do SQL Server no Docker.
+*   **Testes Automatizados:** Suíte de testes unitários (xUnit + FluentAssertions) cobrindo as regras de match exato e por tolerância do motor de conciliação.
 
 ---
 
@@ -51,7 +54,7 @@ Painel de consolidação com os lançamentos operacionais aguardando conferênci
 
 Ingestão de arquivos delimitados (`.csv`) aplicando algoritmos de correspondência:
 *   **Match Exato:** Validação por documento e valor líquido.
-*   **Tolerância de Spread:** Aceitação configurada de divergências (ex: taxas bancárias de até R$ 0,02).
+*   **Tolerância de Spread:** Aceitação configurada de divergências de até R$ 0,05 entre o valor líquido registrado e o valor do extrato.
 
 <br>
 <div align="center">
@@ -86,7 +89,7 @@ Histórico imutável de todas as conciliações e aprovações manuais para conf
 A aplicação possui múltiplas camadas de defesa no pipeline HTTP (Kestrel), validadas através de testes ofensivos com **Kali Linux**:
 
 *   **Prevenção CSRF:** Validação estrita por tokens criptográficos (`[ValidateAntiForgeryToken]`) em endpoints de mutação.
-*   **HTTP Security Headers:** Mitigação de ataques de injeção e clickjacking via `Content-Security-Policy (CSP)`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Permissions-Policy`.
+*   **HTTP Security Headers:** Mitigação de ataques de injeção e clickjacking via `Content-Security-Policy (CSP)`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` e `Permissions-Policy`.
 *   **Server Obfuscation:** Remoção ativa de assinaturas tecnológicas (Kestrel/ASP.NET) para mitigar *fingerprinting* automatizado.
 
 <br>
@@ -140,12 +143,14 @@ Abra o navegador em `http://localhost:5000`
 
 ---
 
-👨‍💻 **Autor**
+## 👨‍💻 Autor
 
-Maiquel Mafra
+**Maiquel Mafra**
+
 Estudante de Engenharia de Software e desenvolvedor interessado em backend, arquitetura de software, observabilidade, automação e inteligência artificial aplicada ao desenvolvimento de sistemas.
-GitHub: Maiquel-Devs
 
-📄 **Licença**
+**GitHub:** [Maiquel-Devs](https://github.com/Maiquel-Devs)
 
-Este projeto está disponível sob a licença MIT, definida no arquivo LICENSE.
+## 📄 Licença
+
+Este projeto está disponível sob a licença MIT, definida no arquivo [LICENSE](LICENSE).
