@@ -36,6 +36,25 @@ O projeto foi estruturado com foco em manutenibilidade e performance:
 
 ---
 
+## 📁 Estrutura do Projeto
+
+```text
+FinReconcile/
+├── docs/                     # Evidências de auditoria e capturas do fluxo
+├── FinReconcile/             # Aplicação principal (.NET 10 MVC)
+│   ├── Controllers/          # Endpoints e controle de fluxo HTTP
+│   ├── Data/                 # Contexto EF Core, migrações e seed
+│   ├── Models/               # Entidades de domínio e ViewModels
+│   ├── Services/             # Regras de negócio, conciliação e parsing CSV
+│   └── Views/                # Interfaces de usuário (Razor/Bootstrap)
+├── tests/                    # Suíte de testes unitários (xUnit + FluentAssertions)
+├── docker-compose.yml        # Orquestração dos containers (App + SQL Server)
+├── ExemploDeExtrato.csv      # Arquivo de massa para testes de conciliação
+└── LICENSE                   # Licença MIT do repositório
+```
+
+---
+
 ## 📸 Fluxo de Negócio e Funcionalidades
 
 O sistema foi desenhado com uma interface limpa, focada na produtividade do analista financeiro.
